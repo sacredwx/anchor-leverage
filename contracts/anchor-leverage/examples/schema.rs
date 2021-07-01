@@ -26,4 +26,5 @@ fn main() {
     export_schema(&schema_for!(QueryMsg), &out_dir);
     export_schema(&schema_for!(HandleAnswer), &out_dir);
     export_schema(&schema_for!(ConfigMsg), &out_dir);
+    export_schema(&schema_for!(PossibleBorrowResponse), &out_dir);
 }
