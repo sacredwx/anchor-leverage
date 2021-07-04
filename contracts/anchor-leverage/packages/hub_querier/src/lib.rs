@@ -108,7 +108,7 @@ pub enum HandleMsg {
         swap_msg: Binary,                  // Base64-encoded string of JSON of PairHandleMsg::Swap
     },
 
-    /// Swaps claimed airdrop tokens to UST through Terraswap & sends resulting UST to bLuna Reward contract
+    /// Swaps claimed airdrop tokens to UST through Terraswap & sends resulting UST to basset Reward contract
     SwapHook {
         airdrop_token_contract: HumanAddr, // E.g. contract address of MIR Token
         airdrop_swap_contract: HumanAddr,  // E.g. Contract address of MIR <> UST Terraswap Pair

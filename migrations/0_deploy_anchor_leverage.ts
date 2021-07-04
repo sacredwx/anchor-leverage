@@ -60,9 +60,9 @@ async function deploy() {
     +codeId,
     {
       config: {
-        bluna_hub_contract: "terra1fflas6wv4snv8lsda9knvq2w0cyt493r8puh2e",
-        bluna_token_contract: "terra1ltnkx0mv7lf2rca9f8w740ashu93ujughy4s7p",
-        bluna_collateral_contract: "terra1u0t35drzyy0mujj8rkdyzhe264uls4ug3wdp3x",
+        basset_hub_contract: "terra1fflas6wv4snv8lsda9knvq2w0cyt493r8puh2e",
+        basset_token_contract: "terra1ltnkx0mv7lf2rca9f8w740ashu93ujughy4s7p",
+        basset_collateral_contract: "terra1u0t35drzyy0mujj8rkdyzhe264uls4ug3wdp3x",
         anchor_overseer_contract: "terra1qljxd0y3j3gk97025qvl3lgq8ygup4gsksvaxv",
         anchor_market_contract: "terra15dwd5mj8v59wpj0wvt233mf5efdff808c5tkal",
         terraswap_luna_ust: "terra156v8s539wtz0sjpn8y8a8lfg8fhmwa7fy22aff",

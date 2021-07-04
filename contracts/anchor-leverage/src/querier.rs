@@ -11,15 +11,31 @@ use crate::state::Config;
 
 pub fn query_bonded_exchange_rate<S: Storage, A: Api, Q: Querier>(
     deps: &Extern<S, A, Q>,
-    bluna_hub_contract: &HumanAddr,
+    basset_hub_contract: &HumanAddr,
 ) -> StdResult<Decimal> {
     Ok(deps
         .querier
         .query::<StateResponse>(&QueryRequest::Wasm(WasmQuery::Smart {
-            contract_addr: bluna_hub_contract.clone(),
+            contract_addr: basset_hub_contract.clone(),
             msg: to_binary(&hub_querier::QueryMsg::State {})?,
         }))?
         .exchange_rate)
+}
+
+pub fn query_bonded_asset<S: Storage, A: Api, Q: Querier>(
+    deps: &Extern<S, A, Q>,
+    basset_collateral_contract: &HumanAddr,
+    self_address: &HumanAddr,
+) -> StdResult<Uint128> {
+    Ok(deps
+        .querier
+        .query::<cw20::BalanceResponse>(&QueryRequest::Wasm(WasmQuery::Smart {
+            contract_addr: basset_collateral_contract.clone(),
+            msg: to_binary(&cw20::Cw20QueryMsg::Balance {
+                address: self_address.clone(),
+            })?,
+        }))?
+        .balance)
 }
 
 pub fn query_borrow_limit<S: Storage, A: Api, Q: Querier>(
@@ -62,18 +78,35 @@ pub fn query_loan_amount<S: Storage, A: Api, Q: Querier>(
         .loan_amount)
 }
 
+pub fn query_collateral<S: Storage, A: Api, Q: Querier>(
+    deps: &Extern<S, A, Q>,
+    config: &Config,
+    borrower: &HumanAddr,
+) -> StdResult<moneymarket::custody::BorrowerResponse> {
+    Ok(deps
+        .querier
+        .query::<moneymarket::custody::BorrowerResponse>(&QueryRequest::Wasm(
+            WasmQuery::Smart {
+                contract_addr: deps.api.human_address(&config.basset_token_contract)?,
+                msg: to_binary(&moneymarket::custody::QueryMsg::Borrower {
+                    address: borrower.clone(),
+                })?,
+            },
+        ))?)
+}
+
 pub fn bond_luna(preferred_validator: &HumanAddr) -> StdResult<Binary> {
     to_binary(&hub_querier::HandleMsg::Bond {
         validator: preferred_validator.clone(),
     })
 }
 
-pub fn deposit_bluna_collateral(
-    bluna_token_contract: &HumanAddr,
+pub fn deposit_basset_collateral(
+    basset_token_contract: &HumanAddr,
     amount: Uint128,
 ) -> StdResult<Binary> {
     to_binary(&Cw20HandleMsg::Send {
-        contract: bluna_token_contract.clone(),
+        contract: basset_token_contract.clone(),
         amount,
         msg: Some(to_binary(
             &moneymarket::custody::Cw20HookMsg::DepositCollateral {},
@@ -82,18 +115,18 @@ pub fn deposit_bluna_collateral(
 }
 
 pub fn overseer_lock_collateral(
-    bluna_collateral_contract: &HumanAddr,
+    basset_collateral_contract: &HumanAddr,
     amount: Uint256,
 ) -> StdResult<Binary> {
     to_binary(&moneymarket::overseer::HandleMsg::LockCollateral {
-        collaterals: vec![(bluna_collateral_contract.clone(), amount)],
+        collaterals: vec![(basset_collateral_contract.clone(), amount)],
     })
 }
 
 pub fn anchor_borrow(borrow_amount: Uint256) -> StdResult<Binary> {
     to_binary(&moneymarket::market::HandleMsg::BorrowStable {
         borrow_amount,
-        to: None, // TODO: and other msgs too
+        to: None,
     })
 }
 

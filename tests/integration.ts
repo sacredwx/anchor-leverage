@@ -1,11 +1,10 @@
-const { LCDClient, MnemonicKey } = require('@terra-money/terra.js');
-
-import { Coins, MsgExecuteContract } from '@terra-money/terra.js';
+import { Coins, MsgExecuteContract, LCDClient, MnemonicKey, StdTx, StdFee, BlockTxBroadcastResult } from '@terra-money/terra.js';
 import dotenv from 'dotenv';
 import path from 'path';
 dotenv.config({
   path: path.resolve(__dirname, '../', '.env')
 });
+import util from 'util';
 
 (async () => {
   console.log("Setting up accounts and contracts...");
@@ -15,8 +14,8 @@ dotenv.config({
   });
   // Setup a network provider to connect
   const terra = new LCDClient({
-    URL: process.env.TERRA_NODE_URL,
-    chainID: process.env.TERRA_CHAIN_ID,
+    URL: process.env.TERRA_NODE_URL as string,
+    chainID: process.env.TERRA_CHAIN_ID as string,
   });
 
   // Create a wallet which points to the network provider
@@ -26,7 +25,7 @@ dotenv.config({
     test1.key.accAddress,
     process.env.CONTRACT_ADDRESS as string,
     {
-      "deposit_msg": {}
+      "deposit": {}
     },
     new Coins({
       "uluna": 100000000
@@ -35,9 +34,12 @@ dotenv.config({
 
   const interactTx = await test1.createAndSignTx({
     msgs: [deposit],
-  }).catch(console.error);
+  }).catch(console.error) as StdTx;
 
-  const interactTxResult = await terra.tx.broadcast(interactTx).catch(console.error);
+  const interactTxResult = await terra.tx.broadcast(interactTx).catch(console.error) as BlockTxBroadcastResult;
 
   console.log(interactTxResult);
+  if (interactTxResult.raw_log) {
+    console.log('events', util.inspect(JSON.parse(interactTxResult.raw_log), { depth: 20 }));
+  }
 })();
